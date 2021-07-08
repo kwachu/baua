@@ -50,7 +50,7 @@ driver.get(URL)
 x=0
 # start at site:
 # 10 000 products = 400 sites
-site=400
+site=2800
 while x < site:
     try:
         driver.find_element_by_id("produkteDatatable_next").click()

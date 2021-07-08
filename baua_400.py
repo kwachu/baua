@@ -10,12 +10,10 @@ PRODUCTSITE_URLS = []
 PAGE_URLS = []
 
 # create excel file
-workbook = xlsxwriter.Workbook("results1.xlsx")
+workbook = xlsxwriter.Workbook("results.xlsx")
 worksheet = workbook.add_worksheet()
 row = 0
 col = 0
-
-clickCount=0
 
 # prepare chrome 
 chrome_options = Options()
@@ -45,19 +43,21 @@ row += 1
 
 
 
-# open URL (start = 1)
+# open URL (site = 1)
 driver.get(URL)
+
+
 x=0
-while x < 400:
+# start at site:
+# 10 000 products = 400 sites
+site=0
+while x < site:
     try:
         driver.find_element_by_id("produkteDatatable_next").click()
         print(".")
         x+=1
     except:
         print("!")
-
-
-
 
 # breaks when cannot click on "next" button
 while True:
@@ -130,21 +130,17 @@ while True:
     row += 1
     print("excel row: ", row)
 
-    x=0
-    while x < 10:
-        try:
-            driver.find_element_by_id("produkteDatatable_next").click()
-            print(".")
-            x=100
-            clickCount+=1
-        except:
-            print("!")
-            x+=2
-    if x == 10:
-        break
-    if clickCount > 400:
-        break
-
+  x=0
+  while x < 10:
+    try:
+      driver.find_element_by_id("produkteDatatable_next").click()
+      print(".")
+      x=100
+    except:
+      print("!")
+      x+=2
+  if x == 10 or row > 10000:
+    break
 
 
 
