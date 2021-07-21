@@ -4,14 +4,26 @@ from selenium.webdriver.common.keys import Keys
 import os
 import xlsxwriter
 import time
+import sys
 
 URL="https://www.baua.de/DE/Biozid-Meldeverordnung/Offen/offen.html"
 
 PRODUCTSITE_URLS = []
 PAGE_URLS = []
 
+
+try:
+  workbook = xlsxwriter.Workbook(sys.argv[2])
+except:
+  print("File not created: ", sys.argv[2])
+  try:
+    workbook = xlsxwriter.Workbook("results.xlsx")
+  except:
+    print("Provide a name for results.xlsx")
+    sys.exit()
+
 # create excel file
-workbook = xlsxwriter.Workbook("results.xlsx")
+
 worksheet = workbook.add_worksheet()
 row = 0
 col = 0
@@ -44,38 +56,64 @@ row += 1
 
 
 
-# open URL (site = 1)
-driver.get(URL)
+# # open URL (site = 1)
+# driver.get(URL)
 
-# breaks when cannot click on "next" button
-click=3128
-while True:
-  # get all URLs of products on page (driver #1)
-  entrys = driver.find_elements_by_xpath("//*[@id='produkteDatatable']/tbody/tr[*]/td[5]/a")
-  for e in entrys:
-    PRODUCTSITE_URLS.append(e.get_attribute('href'))
-  x=0
-  # click "next" button
-  while x < 10:
-    try:
-      driver.find_element_by_id("produkteDatatable_next").click()
-      print(".")
-      x=100
-      time.sleep(1)
-      click-=1
-      break
-    except:
-      print("!")
-      x+=2
-      time.sleep(1)
-  if x == 10 or click < 1:
-    break
+# # breaks when cannot click on "next" button
+# click=3128
+# while True:
+#   # get all URLs of products on page (driver #1)
+#   try:
+#     entrys = driver.find_elements_by_xpath("//*[@id='produkteDatatable']/tbody/tr[*]/td[5]/a")
+#   except:
+#     print("one missed")
+#   for e in entrys:
+#     try:
+#       PRODUCTSITE_URLS.append(e.get_attribute('href'))
+#     except:
+#       print("no such elem")
+#   x=0
+#   # click "next" button
+#   while x < 10:
+#     try:
+#       driver.find_element_by_id("produkteDatatable_next").click()
+#       print("Click2go: ", click)
+#       x=100
+#       time.sleep(1)
+#       click-=1
+#       break
+#     except:
+#       print("!")
+#       x+=2
+#       time.sleep(1)
+#   if x == 10 or click < 1:
+#     break
 
 # remove URLs with duplicate products
-PRODUCTSITE_URLS = list(dict.fromkeys(PRODUCTSITE_URLS))
+#PRODUCTSITE_URLS = list(dict.fromkeys(PRODUCTSITE_URLS))
+
+
+# f = open("uniq-product-URLs.txt", "a")
+# for url in PRODUCTSITE_URLS:
+#   f.write(url)
+
+# f.close()
+
+try:
+  f = open(sys.argv[1], "r")
+except:
+  print("File not found: ", sys.argv[1])
+  try:
+    f = open("URLS.txt")
+  except:
+    print("Provide a file name as argument or place URLS.txt ")
+    sys.exit()
+
+LINES = f.read().split("\n")
+for l in LINES:
+  PRODUCTSITE_URLS.append(l)
 
 print("List has: ", len(PRODUCTSITE_URLS), " uniqs")
-
 # get product page (driver #2)
 for u in PRODUCTSITE_URLS:
   # get product page
@@ -147,7 +185,3 @@ for u in PRODUCTSITE_URLS:
 driver.close()
 driver2.close()
 workbook.close()
-
-
-
-
